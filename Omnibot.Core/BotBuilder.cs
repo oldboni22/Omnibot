@@ -2,6 +2,7 @@ using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.DependencyInjection.Extensions;
 using Microsoft.Extensions.Hosting;
+using Microsoft.Extensions.Logging;
 using Omnibot.Core.Connector;
 using Omnibot.Core.Exceptions;
 using Omnibot.Core.Handling;
@@ -29,6 +30,8 @@ public sealed class BotBuilder
     public IServiceCollection Services => _builder.Services;
     
     public IConfiguration Configuration => _builder.Configuration;
+    
+    public ILoggingBuilder Logging => _builder.Logging;
 
     private Action<Exception> _operationalExceptionHandler = Console.WriteLine;
 
