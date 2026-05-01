@@ -4,6 +4,10 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Omnibot.Core", "Omnibot.Cor
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Omnibot.Features", "Omnibot.Features", "{282CF7AD-3512-4974-88EF-A8EB08C489F9}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Omnibot.Demo", "Omnibot.Demo\Omnibot.Demo.csproj", "{C43423B3-88F2-4F43-A1A8-6B8F6EBD525A}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Omnibot.MessageRouting", "Omnibot.MessageRouting\Omnibot.MessageRouting.csproj", "{A7C32B68-9EB7-4C1C-AD93-3D11ED765457}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -14,5 +18,16 @@ Global
 		{7ED83DD6-3666-45EC-A64F-7D8C9CA2C0E3}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{7ED83DD6-3666-45EC-A64F-7D8C9CA2C0E3}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{7ED83DD6-3666-45EC-A64F-7D8C9CA2C0E3}.Release|Any CPU.Build.0 = Release|Any CPU
+		{C43423B3-88F2-4F43-A1A8-6B8F6EBD525A}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{C43423B3-88F2-4F43-A1A8-6B8F6EBD525A}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{C43423B3-88F2-4F43-A1A8-6B8F6EBD525A}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{C43423B3-88F2-4F43-A1A8-6B8F6EBD525A}.Release|Any CPU.Build.0 = Release|Any CPU
+		{A7C32B68-9EB7-4C1C-AD93-3D11ED765457}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{A7C32B68-9EB7-4C1C-AD93-3D11ED765457}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{A7C32B68-9EB7-4C1C-AD93-3D11ED765457}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{A7C32B68-9EB7-4C1C-AD93-3D11ED765457}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(NestedProjects) = preSolution
+		{A7C32B68-9EB7-4C1C-AD93-3D11ED765457} = {282CF7AD-3512-4974-88EF-A8EB08C489F9}
 	EndGlobalSection
 EndGlobal
