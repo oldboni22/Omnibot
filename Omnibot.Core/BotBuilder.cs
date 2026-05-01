@@ -85,7 +85,7 @@ public sealed class BotBuilder
         return this;
     }
     
-    public BotBuilder WithMaxWorkers(ushort maxWorkers)
+    public BotBuilder SetMaxWorkers(ushort maxWorkers)
     {
         SecureUnlocked();
         
@@ -93,7 +93,7 @@ public sealed class BotBuilder
         return this;
     }
 
-    public BotBuilder WithMaxChannelSize(ushort maxChannelSize)
+    public BotBuilder SetMaxChannelSize(ushort maxChannelSize)
     {
         SecureUnlocked();
         
@@ -101,7 +101,7 @@ public sealed class BotBuilder
         return this;
     }
     
-    public BotBuilder WithOperationalExceptionHandler(Action<Exception> handler)
+    public BotBuilder AddOperationalExceptionHandler(Action<Exception> handler)
     {
         SecureUnlocked();
         
@@ -109,7 +109,7 @@ public sealed class BotBuilder
         return this;
     }
 
-    public BotBuilder WithPipeIdFactory(Func<HandlingContext, string> pipeIdFactory)
+    public BotBuilder AddPipeIdFactory(Func<HandlingContext, string> pipeIdFactory)
     {
         SecureUnlocked();
         
@@ -117,7 +117,7 @@ public sealed class BotBuilder
         return this;
     }
 
-    public BotBuilder WithLoggerScopeFactory(Func<HandlingContext, Dictionary<string, object>> factory)
+    public BotBuilder AddLoggerScopeFactory(Func<HandlingContext, Dictionary<string, object>> factory)
     {
         SecureUnlocked();
         
