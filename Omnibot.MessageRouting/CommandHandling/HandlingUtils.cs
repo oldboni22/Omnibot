@@ -44,7 +44,7 @@ public static class HandlingUtils
     }
     
     private static FrozenDictionary<string, Func<HandlingContext, Task>> BuildHandlers(
-        Type[] controllerTypes, string[]? platformRouted = null)
+        Type[] controllerTypes)
     {
         var dict = new ConcurrentDictionary<string, Func<HandlingContext, Task>>();
         
