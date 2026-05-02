@@ -1,10 +1,12 @@
 using System.Collections.Frozen;
 using System.Reflection;
 using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.DependencyInjection.Extensions;
 using Omnibot.Core;
 using Omnibot.Core.Handling;
 using Omnibot.MessageRouting.CommandHandling;
 using Omnibot.MessageRouting.CommandHandling.ConnectorRouting;
+using Omnibot.MessageRouting.MessageParsing.ArgumentConversion;
 using Omnibot.MessageRouting.MessageParsing.CommandExtraction;
 
 namespace Omnibot.MessageRouting;
@@ -29,15 +31,41 @@ public static class BotBuilderExtensions
             
             return builder.Use<ExtractCommandPipe>();
         }
+
+        public BotBuilder UseArgumentConversion(Assembly[]? assemblies = null)
+        {
+            assemblies ??= [Assembly.GetCallingAssembly()];
+
+            var metadata = assemblies.GetValidConvertersMetadata();
+
+            foreach (var data in metadata)
+            {
+                var descriptor = new ServiceDescriptor(
+                    data.ServiceType,
+                    data.ImplementationType,
+                    data.ServiceLifetime
+                );
+                
+                builder.Services.TryAdd(descriptor);
+            }
+
+            return builder.Use(_ => new ArgumentConversionPipe(ConversionUtils.BuildConverterMap(metadata)));
+        }
         
         public BotBuilder UseControllers(Assembly[]? assemblies = null, Action<ConnectorRoutingBuilder>? configureRouting = null)
         {
             assemblies ??= [Assembly.GetCallingAssembly()];
-            builder.Services.RegisterControllers(assemblies);
+            
+            var controllerTypes = assemblies.GetValidControllerTypes();
+
+            foreach (var type in controllerTypes)
+            {
+                builder.Services.TryAddScoped(type);
+            }
             
             FrozenSet<string>? routedCommands = null;
             FrozenDictionary<string, string>? connectorIdToPlatformKey = null;
-            bool routeAll = false;
+            var routeAll = false;
 
             if (configureRouting is not null)
             {
@@ -47,11 +75,8 @@ public static class BotBuilderExtensions
                 (routedCommands, connectorIdToPlatformKey, routeAll) = routingBuilder;
             }
             
-            return builder.Use<ControllerPipe>(sp =>
-            {
-                var handlers = sp.GetRequiredService<FrozenDictionary<string, Func<HandlingContext, Task>>>();
-                return new ControllerPipe(handlers, routeAll, routedCommands, connectorIdToPlatformKey);
-            });
+            return builder.Use<ControllerPipe>(_ => 
+                new ControllerPipe(HandlingUtils.BuildHandlers(controllerTypes), routeAll, routedCommands, connectorIdToPlatformKey));
         }
     }    
 }

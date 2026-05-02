@@ -12,4 +12,6 @@ public sealed record MessageContext(
     public string? Command { get; set; }
     
     public string? RawArgs { get; set; }
+    
+    public object? ConvertedArgs { get; set; }
 }

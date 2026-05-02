@@ -4,6 +4,7 @@ using System.Linq.Expressions;
 using System.Reflection;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.DependencyInjection.Extensions;
+using Omnibot.Core.Connector;
 using Omnibot.Core.Handling;
 using Omnibot.MessageRouting.CommandHandling.ConnectorRouting;
 using Omnibot.MessageRouting.Exceptions;
@@ -14,7 +15,7 @@ public static class HandlingUtils
 {
     extension(Assembly[] assemblies)
     {
-        private Type[] GetValidControllerTypes()
+        internal Type[] GetValidControllerTypes()
         {
             return assemblies
                 .AsParallel()
@@ -25,25 +26,7 @@ public static class HandlingUtils
         }
     }
 
-    extension(IServiceCollection services)
-    {
-        internal IServiceCollection RegisterControllers(
-            Assembly[] assemblies)
-        {
-            var controllerTypes = assemblies.GetValidControllerTypes();
-
-            foreach (var type in controllerTypes)
-            {
-                services.TryAddScoped(type);
-            }
-            
-            services.AddSingleton(BuildHandlers(controllerTypes));
-            
-            return services;
-        }   
-    }
-    
-    private static FrozenDictionary<string, Func<HandlingContext, Task>> BuildHandlers(
+    internal static FrozenDictionary<string, Func<HandlingContext, Task>> BuildHandlers(
         Type[] controllerTypes)
     {
         var dict = new ConcurrentDictionary<string, Func<HandlingContext, Task>>();
@@ -123,7 +106,9 @@ public static class HandlingUtils
     
     private static Func<object, HandlingContext, Task> CompileMethod(Type controllerType, MethodInfo method)
     {
-        if (method.GetParameters().Length > 0 || method.ReturnParameter.ParameterType != typeof(Task))
+        var parameters = method.GetParameters();
+        
+        if (parameters.Length > 1 || method.ReturnParameter.ParameterType != typeof(Task))
         {
             throw new InvalidHandlingMethodSignatureException(method);
         }
@@ -137,8 +122,27 @@ public static class HandlingUtils
         var invokeSetContext = Expression.Call(controllerCast, setContextMethod, [contextParam]);
         
         var secondCast = Expression.Convert(invokeSetContext, controllerType);
+
+        Expression call;
         
-        var call = Expression.Call(secondCast, method);
+        if (parameters.Length == 1)
+        {
+            var targetParameterType = parameters[0].ParameterType;
+            
+            var messageContextProperty = typeof(HandlingContext).GetProperty(nameof(HandlingContext.MessageContext))!;
+            var convertedArgsProperty = typeof(MessageContext).GetProperty(nameof(MessageContext.ConvertedArgs))!;
+
+            var messageContextAccess = Expression.Property(contextParam, messageContextProperty);
+            var convertedArgsAccess = Expression.Property(messageContextAccess, convertedArgsProperty);
+            
+            var castedArgExpr = Expression.Convert(convertedArgsAccess, targetParameterType);
+            
+            call = Expression.Call(secondCast, method, castedArgExpr);
+        }
+        else
+        {
+            call = Expression.Call(secondCast, method);
+        }
         
         return Expression.Lambda<Func<object, HandlingContext, Task>>(call, controllerInstanceParam, contextParam).Compile();
     }
