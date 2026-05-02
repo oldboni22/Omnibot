@@ -1,8 +1,10 @@
+using System.Collections.Frozen;
 using System.Reflection;
 using Microsoft.Extensions.DependencyInjection;
 using Omnibot.Core;
 using Omnibot.Core.Handling;
 using Omnibot.MessageRouting.CommandHandling;
+using Omnibot.MessageRouting.CommandHandling.PlatformRouting;
 using Omnibot.MessageRouting.MessageParsing.CommandExtraction;
 
 namespace Omnibot.MessageRouting;
@@ -27,19 +29,28 @@ public static class BotBuilderExtensions
             
             return builder.Use<ExtractCommandPipe>();
         }
-
-        public BotBuilder UseControllers()
-        {
-            builder.Services.RegisterControllers([Assembly.GetCallingAssembly()]);
-            
-            return builder.Use<ControllerPipe>();
-        }
         
-        public BotBuilder UseControllers(Assembly[] assemblies)
+        public BotBuilder UseControllers(Assembly[]? assemblies = null, Action<PlatformRoutingBuilder>? configureRouting = null)
         {
+            assemblies ??= [Assembly.GetCallingAssembly()];
             builder.Services.RegisterControllers(assemblies);
             
-            return builder.Use<ControllerPipe>();
+            FrozenSet<string>? routedCommands = null;
+            FrozenDictionary<string, string>? connectorIdToPlatformKey = null;
+
+            if (configureRouting is not null)
+            {
+                var routingBuilder = new PlatformRoutingBuilder();
+                configureRouting.Invoke(routingBuilder);
+
+                (routedCommands, connectorIdToPlatformKey) = routingBuilder;
+            }
+            
+            return builder.Use<ControllerPipe>(sp =>
+            {
+                var handlers = sp.GetRequiredService<FrozenDictionary<string, Func<HandlingContext, Task>>>();
+                return new ControllerPipe(handlers, routedCommands, connectorIdToPlatformKey);
+            });
         }
     }    
 }

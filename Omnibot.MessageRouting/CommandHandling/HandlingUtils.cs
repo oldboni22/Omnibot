@@ -5,6 +5,7 @@ using System.Reflection;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.DependencyInjection.Extensions;
 using Omnibot.Core.Handling;
+using Omnibot.MessageRouting.CommandHandling.PlatformRouting;
 using Omnibot.MessageRouting.Exceptions;
 
 namespace Omnibot.MessageRouting.CommandHandling;
@@ -26,7 +27,8 @@ public static class HandlingUtils
 
     extension(IServiceCollection services)
     {
-        internal IServiceCollection RegisterControllers(Assembly[] assemblies)
+        internal IServiceCollection RegisterControllers(
+            Assembly[] assemblies)
         {
             var controllerTypes = assemblies.GetValidControllerTypes();
 
@@ -41,7 +43,8 @@ public static class HandlingUtils
         }   
     }
     
-    private static FrozenDictionary<string, Func<HandlingContext, Task>> BuildHandlers(Type[] controllerTypes)
+    private static FrozenDictionary<string, Func<HandlingContext, Task>> BuildHandlers(
+        Type[] controllerTypes, string[]? platformRouted = null)
     {
         var dict = new ConcurrentDictionary<string, Func<HandlingContext, Task>>();
         
@@ -50,7 +53,8 @@ public static class HandlingUtils
         return dict.ToFrozenDictionary();
     }
 
-    private static void HandleController(Type controllerType, ConcurrentDictionary<string, Func<HandlingContext, Task>> dict)
+    private static void HandleController(
+        Type controllerType, ConcurrentDictionary<string, Func<HandlingContext, Task>> dict)
     {
         var methods = controllerType
             .GetMethods(BindingFlags.Public | BindingFlags.Instance | BindingFlags.DeclaredOnly)
@@ -59,9 +63,12 @@ public static class HandlingUtils
 
         var controllerFilters = controllerType.GetCustomAttributes<ControllerFilterAttribute>(true).ToArray();
         
+        var platformAttribute = Attribute.GetCustomAttribute(controllerType, typeof(PlatformAttribute)) as  PlatformAttribute;
+        var platformName = platformAttribute?.Platform;
+        
         foreach (var method in methods)
         {
-            HandleMethod(controllerType, controllerFilters, method, dict);
+            HandleMethod(controllerType, controllerFilters, method, dict, platformName);
         }
     }
 
@@ -69,7 +76,8 @@ public static class HandlingUtils
         Type controllerType,
         ControllerFilterAttribute[] controllerFilters, 
         MethodInfo method, 
-        ConcurrentDictionary<string, Func<HandlingContext, Task>> dict)
+        ConcurrentDictionary<string, Func<HandlingContext, Task>> dict,
+        string? platformName)
     {
         var methodFilters = method.GetCustomAttributes<ControllerFilterAttribute>(true).ToArray();
         var allFilters = controllerFilters.Concat(methodFilters).ToArray();
@@ -77,6 +85,11 @@ public static class HandlingUtils
         var commandAttr = method.GetCustomAttribute<CommandAttribute>()!;
         var command = commandAttr.Command;
 
+        if (platformName is not null)
+        {
+            command = $"{platformName}.{command}";
+        }
+        
         if(!dict.TryAdd(command, BuildChain(controllerType, method, allFilters)))
         {
             throw new DuplicateCommandHandlingException(command);

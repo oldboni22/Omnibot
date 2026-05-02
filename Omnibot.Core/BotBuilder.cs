@@ -164,6 +164,15 @@ public sealed class BotBuilder
         return this;
     }
     
+    public BotBuilder Use<TPipe>(Func<IServiceProvider, TPipe> factory) where TPipe : HandlingPipe
+    {
+        SecureUnlocked();
+        SecureUnique(typeof(TPipe), RegistrationType.Pipe);
+        
+        _delegateFactories.Add(factory);
+        return this;
+    }
+    
     private HandlingDelegate BuildPipeline(IServiceProvider serviceProvider)
     {
         HandlingDelegate pipeline = _ => Task.CompletedTask;
