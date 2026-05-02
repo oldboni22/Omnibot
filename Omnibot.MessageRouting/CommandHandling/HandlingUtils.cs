@@ -5,7 +5,7 @@ using System.Reflection;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.DependencyInjection.Extensions;
 using Omnibot.Core.Handling;
-using Omnibot.MessageRouting.CommandHandling.PlatformRouting;
+using Omnibot.MessageRouting.CommandHandling.ConnectorRouting;
 using Omnibot.MessageRouting.Exceptions;
 
 namespace Omnibot.MessageRouting.CommandHandling;
@@ -63,7 +63,7 @@ public static class HandlingUtils
 
         var controllerFilters = controllerType.GetCustomAttributes<ControllerFilterAttribute>(true).ToArray();
         
-        var platformAttribute = Attribute.GetCustomAttribute(controllerType, typeof(PlatformAttribute)) as  PlatformAttribute;
+        var platformAttribute = Attribute.GetCustomAttribute(controllerType, typeof(RouteAttribute)) as  RouteAttribute;
         var platformName = platformAttribute?.Platform;
         
         foreach (var method in methods)

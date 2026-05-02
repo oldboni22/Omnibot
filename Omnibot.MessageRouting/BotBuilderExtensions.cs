@@ -4,7 +4,7 @@ using Microsoft.Extensions.DependencyInjection;
 using Omnibot.Core;
 using Omnibot.Core.Handling;
 using Omnibot.MessageRouting.CommandHandling;
-using Omnibot.MessageRouting.CommandHandling.PlatformRouting;
+using Omnibot.MessageRouting.CommandHandling.ConnectorRouting;
 using Omnibot.MessageRouting.MessageParsing.CommandExtraction;
 
 namespace Omnibot.MessageRouting;
@@ -30,7 +30,7 @@ public static class BotBuilderExtensions
             return builder.Use<ExtractCommandPipe>();
         }
         
-        public BotBuilder UseControllers(Assembly[]? assemblies = null, Action<PlatformRoutingBuilder>? configureRouting = null)
+        public BotBuilder UseControllers(Assembly[]? assemblies = null, Action<ConnectorRoutingBuilder>? configureRouting = null)
         {
             assemblies ??= [Assembly.GetCallingAssembly()];
             builder.Services.RegisterControllers(assemblies);
@@ -41,7 +41,7 @@ public static class BotBuilderExtensions
 
             if (configureRouting is not null)
             {
-                var routingBuilder = new PlatformRoutingBuilder();
+                var routingBuilder = new ConnectorRoutingBuilder();
                 configureRouting.Invoke(routingBuilder);
 
                 (routedCommands, connectorIdToPlatformKey, routeAll) = routingBuilder;

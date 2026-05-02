@@ -1,9 +1,9 @@
 using System.Collections.Frozen;
 using Omnibot.MessageRouting.Exceptions;
 
-namespace Omnibot.MessageRouting.CommandHandling.PlatformRouting;
+namespace Omnibot.MessageRouting.CommandHandling.ConnectorRouting;
 
-public sealed class PlatformRoutingBuilder
+public sealed class ConnectorRoutingBuilder
 {
     private readonly HashSet<string> _registeredCommands = [];
     
@@ -15,9 +15,9 @@ public sealed class PlatformRoutingBuilder
 
     private bool _routeAll = false;
     
-    internal PlatformRoutingBuilder(){}
+    internal ConnectorRoutingBuilder(){}
 
-    public PlatformRoutingBuilder RouteCommand(string command)
+    public ConnectorRoutingBuilder RouteCommand(string command)
     {
         if (!_registeredCommands.Add(command))
         {
@@ -27,14 +27,24 @@ public sealed class PlatformRoutingBuilder
         _routedCommands.Add(command);
         return this;
     }
+    
+    public ConnectorRoutingBuilder RouteCommands(string[] commands)
+    {
+        foreach (var command in commands)
+        {
+            RouteCommand(command);
+        }
+        
+        return this;
+    }
 
-    public PlatformRoutingBuilder RouteAll()
+    public ConnectorRoutingBuilder RouteAll()
     {
         _routeAll = true;
         return this;
     }
     
-    public PlatformRoutingBuilder MapConnector(string connectorId, string mapTo)
+    public ConnectorRoutingBuilder MapConnector(string connectorId, string mapTo)
     {
         if (!_registeredConnectors.Add(connectorId))
         {
@@ -42,6 +52,16 @@ public sealed class PlatformRoutingBuilder
         }
         
         _connectorIdToPlatformKey[connectorId] =  mapTo;
+        return this;
+    }
+
+    public ConnectorRoutingBuilder MapConnectors(Dictionary<string, string> mappings)
+    {
+        foreach (var (connectorId, mapTo) in mappings)
+        {
+            MapConnector(connectorId, mapTo);
+        }
+    
         return this;
     }
 
