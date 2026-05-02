@@ -5,7 +5,8 @@ public sealed record MessageContext(
     string Message,
     string SenderId,
     string ChatId,
-    string ConnectorIdentifier
+    string ConnectorIdentifier,
+    object? RawData = null
     )
 {
     public string? Command { get; set; }
