@@ -37,19 +37,20 @@ public static class BotBuilderExtensions
             
             FrozenSet<string>? routedCommands = null;
             FrozenDictionary<string, string>? connectorIdToPlatformKey = null;
+            bool routeAll = false;
 
             if (configureRouting is not null)
             {
                 var routingBuilder = new PlatformRoutingBuilder();
                 configureRouting.Invoke(routingBuilder);
 
-                (routedCommands, connectorIdToPlatformKey) = routingBuilder;
+                (routedCommands, connectorIdToPlatformKey, routeAll) = routingBuilder;
             }
             
             return builder.Use<ControllerPipe>(sp =>
             {
                 var handlers = sp.GetRequiredService<FrozenDictionary<string, Func<HandlingContext, Task>>>();
-                return new ControllerPipe(handlers, routedCommands, connectorIdToPlatformKey);
+                return new ControllerPipe(handlers, routeAll, routedCommands, connectorIdToPlatformKey);
             });
         }
     }    

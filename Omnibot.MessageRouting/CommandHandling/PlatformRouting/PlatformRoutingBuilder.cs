@@ -12,6 +12,8 @@ public sealed class PlatformRoutingBuilder
     private readonly List<string> _routedCommands = [];
 
     private readonly Dictionary<string, string> _connectorIdToPlatformKey = [];
+
+    private bool _routeAll = false;
     
     internal PlatformRoutingBuilder(){}
 
@@ -26,6 +28,12 @@ public sealed class PlatformRoutingBuilder
         return this;
     }
 
+    public PlatformRoutingBuilder RouteAll()
+    {
+        _routeAll = true;
+        return this;
+    }
+    
     public PlatformRoutingBuilder MapConnector(string connectorId, string mapTo)
     {
         if (!_registeredConnectors.Add(connectorId))
@@ -39,9 +47,11 @@ public sealed class PlatformRoutingBuilder
 
     internal void Deconstruct(
         out FrozenSet<string> routedCommands,
-        out FrozenDictionary<string, string> connectorIdToPlatformKey)
+        out FrozenDictionary<string, string> connectorIdToPlatformKey,
+        out bool routeALl)
     {
         routedCommands = _routedCommands.ToFrozenSet();
         connectorIdToPlatformKey = _connectorIdToPlatformKey.ToFrozenDictionary();
+        routeALl = _routeAll;
     }
 }

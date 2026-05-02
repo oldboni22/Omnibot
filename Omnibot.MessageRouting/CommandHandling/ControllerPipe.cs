@@ -6,6 +6,7 @@ namespace Omnibot.MessageRouting.CommandHandling;
 
 public sealed class ControllerPipe(
     FrozenDictionary<string, Func<HandlingContext, Task>> handlers,
+    bool routeAll,
     FrozenSet<string>? routedCommands,
     FrozenDictionary<string, string>? connectorIdToPlatformKey) : HandlingPipe
 {
@@ -19,7 +20,7 @@ public sealed class ControllerPipe(
             return;
         }
 
-        var routeCommand = routedCommands is not null && routedCommands.Contains(command);
+        var routeCommand = routeAll || (routedCommands is not null && routedCommands.Contains(command));
         
         if (routeCommand)
         {
