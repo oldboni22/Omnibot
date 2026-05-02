@@ -1,7 +1,7 @@
 namespace Omnibot.MessageRouting.CommandHandling.ConnectorRouting;
 
 [AttributeUsage(AttributeTargets.Class, Inherited =  false, AllowMultiple = true)]
-public sealed class RouteAttribute(string platform) : Attribute
+public sealed class RouteAttribute(string routeKey) : Attribute
 {
-    public string Platform => platform;
+    public string RouteKey => routeKey;
 }

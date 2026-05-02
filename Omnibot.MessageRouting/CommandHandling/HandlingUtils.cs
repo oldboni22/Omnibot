@@ -47,7 +47,7 @@ public static class HandlingUtils
         var controllerFilters = controllerType.GetCustomAttributes<ControllerFilterAttribute>(true).ToArray();
         
         var platformAttribute = Attribute.GetCustomAttribute(controllerType, typeof(RouteAttribute)) as  RouteAttribute;
-        var platformName = platformAttribute?.Platform;
+        var platformName = platformAttribute?.RouteKey;
         
         foreach (var method in methods)
         {
