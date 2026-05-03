@@ -19,8 +19,19 @@ public sealed class ArgumentConversionPipe(FrozenDictionary<string, Type> conver
         }
 
         var converter = context.ServiceProvider.GetRequiredService(converterType) as IArgumentConverter;
+
+        object? converted;
         
-        context.MessageContext.ConvertedArgs = converter?.ConvertUntyped(context.MessageContext.RawArgs);
+        try
+        {
+            converted = converter?.ConvertUntyped(context.MessageContext.RawArgs);
+        }
+        catch
+        {
+            converted = null;
+        }
+
+        context.MessageContext.ConvertedArgs = converted;
         
         return next(context);
     }
