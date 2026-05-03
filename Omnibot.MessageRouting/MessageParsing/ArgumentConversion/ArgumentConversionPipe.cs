@@ -18,9 +18,12 @@ public sealed class ArgumentConversionPipe(FrozenDictionary<string, Type> conver
             return next(context);
         }
 
-        var converter = context.ServiceProvider.GetRequiredService(converterType) as IArgumentConverter;
-
-        object? converted;
+        if (context.ServiceProvider.GetRequiredService(converterType) is not IArgumentConverter converter)
+        {
+            return next(context);
+        }
+        
+        object? converted = null;
         
         try
         {
@@ -28,7 +31,10 @@ public sealed class ArgumentConversionPipe(FrozenDictionary<string, Type> conver
         }
         catch
         {
-            converted = null;
+            if (converter!.PropagateException)
+            {
+                throw;
+            }
         }
 
         context.MessageContext.ConvertedArgs = converted;
