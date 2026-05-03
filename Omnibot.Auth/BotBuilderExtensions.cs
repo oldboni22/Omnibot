@@ -1,5 +1,9 @@
+#region
+
 using Microsoft.Extensions.DependencyInjection.Extensions;
 using Omnibot.Core;
+
+#endregion
 
 namespace Omnibot.Auth;
 

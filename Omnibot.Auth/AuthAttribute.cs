@@ -1,7 +1,10 @@
-using System.Collections.Frozen;
+#region
+
 using Microsoft.Extensions.DependencyInjection;
 using Omnibot.Core.Handling;
 using Omnibot.MessageRouting.CommandHandling;
+
+#endregion
 
 namespace Omnibot.Auth;
 

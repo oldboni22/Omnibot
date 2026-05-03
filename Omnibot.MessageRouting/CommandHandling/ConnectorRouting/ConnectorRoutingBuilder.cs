@@ -1,5 +1,9 @@
+#region
+
 using System.Collections.Frozen;
 using Omnibot.MessageRouting.Exceptions;
+
+#endregion
 
 namespace Omnibot.MessageRouting.CommandHandling.ConnectorRouting;
 

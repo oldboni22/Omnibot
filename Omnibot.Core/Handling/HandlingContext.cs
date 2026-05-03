@@ -1,4 +1,8 @@
+#region
+
 using Omnibot.Core.Connector;
+
+#endregion
 
 namespace Omnibot.Core.Handling;
 

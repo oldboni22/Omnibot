@@ -1,4 +1,8 @@
+#region
+
 using Omnibot.Core.Handling;
+
+#endregion
 
 namespace Omnibot.MessageRouting.CommandHandling;
 

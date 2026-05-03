@@ -1,6 +1,10 @@
+#region
+
 using System.Collections.Frozen;
 using Microsoft.Extensions.DependencyInjection;
 using Omnibot.Core.Handling;
+
+#endregion
 
 namespace Omnibot.MessageRouting.MessageParsing.ArgumentConversion;
 

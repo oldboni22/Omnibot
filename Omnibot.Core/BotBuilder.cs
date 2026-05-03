@@ -1,3 +1,5 @@
+#region
+
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.DependencyInjection.Extensions;
@@ -6,6 +8,8 @@ using Microsoft.Extensions.Logging;
 using Omnibot.Core.Connector;
 using Omnibot.Core.Exceptions;
 using Omnibot.Core.Handling;
+
+#endregion
 
 namespace Omnibot.Core;
 

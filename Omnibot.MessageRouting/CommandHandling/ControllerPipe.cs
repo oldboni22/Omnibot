@@ -1,6 +1,10 @@
+#region
+
 using System.Collections.Frozen;
 using Omnibot.Core.Handling;
 using Omnibot.MessageRouting.Exceptions;
+
+#endregion
 
 namespace Omnibot.MessageRouting.CommandHandling;
 

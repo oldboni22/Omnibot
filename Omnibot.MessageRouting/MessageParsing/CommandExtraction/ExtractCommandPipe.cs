@@ -1,5 +1,9 @@
+#region
+
 using Microsoft.Extensions.Options;
 using Omnibot.Core.Handling;
+
+#endregion
 
 namespace Omnibot.MessageRouting.MessageParsing.CommandExtraction;
 
