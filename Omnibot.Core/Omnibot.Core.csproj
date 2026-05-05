@@ -10,6 +10,11 @@
       <PackageReference Include="Microsoft.Extensions.DependencyInjection" Version="10.0.7" />
       <PackageReference Include="Microsoft.Extensions.Hosting" Version="10.0.7" />
       <PackageReference Include="Microsoft.Extensions.Logging.Abstractions" Version="10.0.7" />
+      <PackageReference Include="Microsoft.Extensions.ObjectPool" Version="10.0.7" />
     </ItemGroup>
 
+    <ItemGroup>
+        <InternalsVisibleTo Include="Omnibot.Demo" />
+    </ItemGroup>
+    
 </Project>

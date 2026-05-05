@@ -4,6 +4,7 @@ using System.Threading.Channels;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
+using Microsoft.Extensions.ObjectPool;
 using Omnibot.Core.Connector;
 using Omnibot.Core.Exceptions;
 using Omnibot.Core.Handling;
@@ -26,9 +27,9 @@ public sealed class Bot : BackgroundService
     
     private readonly ushort _maxWorkers; 
     
-    private readonly Func<HandlingContext, Dictionary<string, object>> _loggerScopeFactory;
-    
     private readonly Func<HandlingContext, string> _pipeIdFactory;
+    
+    private readonly ObjectPool<HandlingContext> _contextPool;
     
     internal Bot(
         IConnector[] connectors, 
@@ -37,17 +38,17 @@ public sealed class Bot : BackgroundService
         ushort maxWorkers,
         ushort maxChannelSize,
         Action<Exception> operationalExceptionHandler, 
-        Func<HandlingContext, Dictionary<string, object>> loggerScopeFactory,
         Func<HandlingContext, string> pipeIdFactory)
     {
         _connectors = connectors;
         _serviceProvider = serviceProvider;
         _handler = handler;
         _operationalExceptionHandler = operationalExceptionHandler;
-        _loggerScopeFactory = loggerScopeFactory;
         _pipeIdFactory = pipeIdFactory;
         _maxWorkers = maxWorkers;
         _channel = Channel.CreateBounded<MessageContext>(new BoundedChannelOptions(maxChannelSize));
+        
+        _contextPool = _serviceProvider.GetRequiredService<ObjectPool<HandlingContext>>();
     }
     
     protected override Task ExecuteAsync(CancellationToken stoppingToken)
@@ -110,14 +111,20 @@ public sealed class Bot : BackgroundService
     private async Task ProcessMessageAsync(MessageContext messageContext, CancellationToken cancellationToken = default)
     {
         using var scope = _serviceProvider.CreateScope();
-        var context = new HandlingContext(scope.ServiceProvider, messageContext, cancellationToken);
         
+        var context = _contextPool.Get();
+        context.ServiceProvider = scope.ServiceProvider;
+        context.MessageContext = messageContext;
+        context.CancellationToken = cancellationToken;
         context.PipeId = _pipeIdFactory(context);
-        
-        var logger = scope.ServiceProvider.GetRequiredService<ILogger<Bot>>();
-        using (logger.BeginScope(_loggerScopeFactory(context)))
+
+        try
         {
-            await _handler(context);   
+            await _handler(context);
+        }
+        finally
+        {
+            _contextPool.Return(context);
         }
     }
 }

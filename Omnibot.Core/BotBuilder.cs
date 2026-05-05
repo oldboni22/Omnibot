@@ -5,6 +5,7 @@ using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.DependencyInjection.Extensions;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
+using Microsoft.Extensions.ObjectPool;
 using Omnibot.Core.Connector;
 using Omnibot.Core.Exceptions;
 using Omnibot.Core.Handling;
@@ -43,8 +44,6 @@ public sealed class BotBuilder
     
     private ushort _maxChannelSize = 1000; 
     
-    private Func<HandlingContext, Dictionary<string, object>> _loggerScopeFactory = _ => [];
-    
     private Func<HandlingContext, string> _pipeIdFactory = _ => Guid.NewGuid().ToString();
 
     internal BotBuilder()
@@ -63,7 +62,6 @@ public sealed class BotBuilder
             _maxWorkers,
             _maxChannelSize,
             _operationalExceptionHandler,
-            _loggerScopeFactory,
             _pipeIdFactory
         );
     }
@@ -73,6 +71,14 @@ public sealed class BotBuilder
         SecureUnlocked();
         
         _isLocked = true;
+        
+        _builder.Services.AddSingleton<ObjectPoolProvider, DefaultObjectPoolProvider>();
+        _builder.Services.AddSingleton(sp => 
+        {
+            var provider = sp.GetRequiredService<ObjectPoolProvider>();
+            return provider.Create(new HandlingContextPoolPolicy());
+        });
+        
         _builder.Services.AddHostedService(Create);
         
         return _builder.Build();
@@ -118,14 +124,6 @@ public sealed class BotBuilder
         SecureUnlocked();
         
         _pipeIdFactory = pipeIdFactory;
-        return this;
-    }
-
-    public BotBuilder AddLoggerScopeFactory(Func<HandlingContext, Dictionary<string, object>> factory)
-    {
-        SecureUnlocked();
-        
-        _loggerScopeFactory = factory;
         return this;
     }
     
