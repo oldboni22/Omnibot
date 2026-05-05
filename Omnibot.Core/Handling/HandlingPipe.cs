@@ -1,8 +1,8 @@
 namespace Omnibot.Core.Handling;
 
-public delegate Task HandlingDelegate(HandlingContext context);
+public delegate ValueTask HandlingDelegate(HandlingContext context);
 
 public abstract class HandlingPipe()
 {
-    public abstract Task Handle(HandlingContext context, HandlingDelegate next);
+    public abstract ValueTask Handle(HandlingContext context, HandlingDelegate next);
 }

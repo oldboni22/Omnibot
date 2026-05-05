@@ -11,7 +11,7 @@ internal sealed class ExtractCommandPipe(IOptions<CommandExtractionOptions> opti
 {
     private readonly CommandExtractionOptions _options = options.Value;
     
-    public override async Task Handle(HandlingContext context, HandlingDelegate next)
+    public override ValueTask Handle(HandlingContext context, HandlingDelegate next)
     {
         if (context.MessageContext.Message.StartsWith(_options.StartSymbol))
         {
@@ -24,7 +24,7 @@ internal sealed class ExtractCommandPipe(IOptions<CommandExtractionOptions> opti
             }
         }
         
-        await next(context);
+        return next(context);
     }
 
     private static (string command, string? arguments) ExtractCommand(string message)

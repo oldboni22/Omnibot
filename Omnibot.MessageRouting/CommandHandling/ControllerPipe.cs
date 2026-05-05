@@ -14,7 +14,7 @@ public sealed class ControllerPipe(
     FrozenSet<string>? routedCommands,
     FrozenDictionary<string, string>? connectorIdToPlatformKey) : HandlingPipe
 {
-    public override async Task Handle(HandlingContext context, HandlingDelegate next)
+    public override async ValueTask Handle(HandlingContext context, HandlingDelegate next)
     {
         var command = context.MessageContext.Command;
 

@@ -151,7 +151,7 @@ public sealed class BotBuilder
     
     #region Pipeline
 
-    public BotBuilder Use(Func<HandlingContext, HandlingDelegate, Task> lambda)
+    public BotBuilder Use(Func<HandlingContext, HandlingDelegate, ValueTask> lambda)
     {
         SecureUnlocked();
         
@@ -179,7 +179,7 @@ public sealed class BotBuilder
     
     private HandlingDelegate BuildPipeline(IServiceProvider serviceProvider)
     {
-        HandlingDelegate pipeline = _ => Task.CompletedTask;
+        HandlingDelegate pipeline = _ => ValueTask.CompletedTask;
         
         var instances = _delegateFactories
             .Select(factory => factory(serviceProvider))
