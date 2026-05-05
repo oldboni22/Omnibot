@@ -18,23 +18,40 @@ public static class BotBuilderExtensions
 {
     extension(BotBuilder builder)
     {
-        public BotBuilder UseCommandExtraction(char symbol)
+        /// <summary>
+        /// Adds command extraction to the pipeline.
+        /// </summary>
+        /// <param name="symbol">
+        /// The start symbol of the command.
+        /// If the symbol is not provided, tries to read the configuration.
+        /// If the configuration is empty, uses '/' as the default value.
+        /// </param>
+        public BotBuilder UseCommandExtraction(char? symbol = null)
         {
-            builder.Services.Configure<CommandExtractionOptions>(options =>
+            if(symbol is null)
             {
-                options.StartSymbol = symbol;
-            });
+                builder.Services
+                    .Configure<CommandExtractionOptions>(builder.Configuration.GetSection(CommandExtractionOptions.Section));
+            }
+            else
+            {
+                builder.Services.Configure<CommandExtractionOptions>(options =>
+                {
+                    options.StartSymbol = symbol.Value;
+                });
+            }
             
             return builder.Use<ExtractCommandPipe>();
         }
 
-        public BotBuilder UseCommandExtraction()
-        {
-            builder.Services.Configure<CommandExtractionOptions>(builder.Configuration.GetSection(CommandExtractionOptions.Section));
-            
-            return builder.Use<ExtractCommandPipe>();
-        }
-
+        /// <summary>
+        /// Registers converter classes in the di and adds conversion to the pipeline.
+        /// Requires command extraction.
+        /// </summary>
+        /// <param name="assemblies">
+        /// The assemblies to scan for converter classes.
+        /// By default, scans the calling assembly.
+        /// </param>
         public BotBuilder UseArgumentConversion(Assembly[]? assemblies = null)
         {
             assemblies ??= [Assembly.GetCallingAssembly()];
@@ -55,6 +72,17 @@ public static class BotBuilderExtensions
             return builder.Use(_ => new ArgumentConversionPipe(ConversionUtils.BuildConverterMap(metadata)));
         }
         
+        /// <summary>
+        /// Registers controller classes in the di and adds controller routing and invocation to the pipeline.
+        /// Requires command extraction.
+        /// </summary>
+        /// <param name="assemblies">
+        /// The assemblies to scan for controller classes.
+        /// By default, scans the calling assembly.
+        /// </param>
+        /// <param name="configureRouting">
+        /// The method used for routing configuration.
+        /// </param>
         public BotBuilder UseControllers(Assembly[]? assemblies = null, Action<ConnectorRoutingBuilder>? configureRouting = null)
         {
             assemblies ??= [Assembly.GetCallingAssembly()];

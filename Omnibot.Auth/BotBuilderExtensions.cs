@@ -11,6 +11,12 @@ public static class BotBuilderExtensions
 {
     extension(BotBuilder botBuilder)
     {
+        /// <summary>
+        /// Adds authentication filters to the di.
+        /// </summary>
+        /// <param name="configure">
+        /// The method used to configure authentication.
+        /// </param>
         public BotBuilder AddAuth(Action<AuthBuilder> configure)
         {
             var builder =  new AuthBuilder();
