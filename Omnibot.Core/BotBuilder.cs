@@ -71,8 +71,8 @@ public sealed class BotBuilder
         SecureUnlocked();
         
         _isLocked = true;
-        
-        _builder.Services.AddSingleton<ObjectPoolProvider, DefaultObjectPoolProvider>();
+
+        _builder.Services.AddSingleton<ObjectPoolProvider>(_ => new DefaultObjectPoolProvider { MaximumRetained = _maxWorkers });
         _builder.Services.AddSingleton(sp => 
         {
             var provider = sp.GetRequiredService<ObjectPoolProvider>();
@@ -149,7 +149,7 @@ public sealed class BotBuilder
     
     #region Pipeline
 
-    public BotBuilder Use(Func<HandlingContext, HandlingDelegate, ValueTask> lambda)
+    public BotBuilder Use(Func<HandlingContext, HandlingDelegate, Task> lambda)
     {
         SecureUnlocked();
         
@@ -177,7 +177,7 @@ public sealed class BotBuilder
     
     private HandlingDelegate BuildPipeline(IServiceProvider serviceProvider)
     {
-        HandlingDelegate pipeline = _ => ValueTask.CompletedTask;
+        HandlingDelegate pipeline = _ => Task.CompletedTask;
         
         var instances = _delegateFactories
             .Select(factory => factory(serviceProvider))

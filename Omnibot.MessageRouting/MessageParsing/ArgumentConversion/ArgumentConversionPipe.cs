@@ -10,7 +10,7 @@ namespace Omnibot.MessageRouting.MessageParsing.ArgumentConversion;
 
 public sealed class ArgumentConversionPipe(FrozenDictionary<string, Type> converters) : HandlingPipe
 {
-    public override ValueTask Handle(HandlingContext context, HandlingDelegate next)
+    public override Task Handle(HandlingContext context, HandlingDelegate next)
     {
         if (context.MessageContext.Command is null)
         {

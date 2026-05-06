@@ -63,19 +63,20 @@ public sealed class Bot : BackgroundService
         var workers = Enumerable.Range(0, _maxWorkers)
             .Select(_ => Task.Run(async () =>
             {
-                try
+                await foreach (var context in _channel.Reader.ReadAllAsync(cancellationToken))
                 {
-                    await foreach (var context in _channel.Reader.ReadAllAsync(cancellationToken))
+                    try
                     {
                         await ProcessMessageAsync(context, cancellationToken);
                     }
+                    catch (OperationCanceledException)
+                    {
+                    }
+                    catch (Exception e)
+                    {
+                        _operationalExceptionHandler(e);
+                    }
                 }
-                catch (OperationCanceledException) { }
-                catch (Exception e)
-                {
-                    _operationalExceptionHandler(e);
-                }
-                
             }, cancellationToken));
 
         await Task.WhenAll(producers.Concat(workers));
@@ -108,7 +109,7 @@ public sealed class Bot : BackgroundService
         }
     }
     
-    private async Task ProcessMessageAsync(MessageContext messageContext, CancellationToken cancellationToken = default)
+    internal async Task ProcessMessageAsync(MessageContext messageContext, CancellationToken cancellationToken = default)
     {
         using var scope = _serviceProvider.CreateScope();
         

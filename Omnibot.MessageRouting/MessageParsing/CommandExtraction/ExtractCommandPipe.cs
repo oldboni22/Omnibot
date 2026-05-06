@@ -11,7 +11,7 @@ internal sealed class ExtractCommandPipe(IOptions<CommandExtractionOptions> opti
 {
     private readonly CommandExtractionOptions _options = options.Value;
     
-    public override ValueTask Handle(HandlingContext context, HandlingDelegate next)
+    public override Task Handle(HandlingContext context, HandlingDelegate next)
     {
         if (context.MessageContext.Message.StartsWith(_options.StartSymbol))
         {
